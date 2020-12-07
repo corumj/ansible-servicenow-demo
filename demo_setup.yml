@@ -23,9 +23,64 @@
         tower_host: https://localhost
         tower_verify_ssl: false
         scm_type: git 
-        scm_url:
+        scm_url: https://github.com/corumj/ansible-servicenow-demo.git
         scm_update_on_launch: yes 
-        
-        
 
-        
+    - name: Add custom credential for ServiceNow 
+      awx.awx.tower_credential_type:
+        name: "SNOW_CL Credential"
+        description: Credential Type for ServiceNow 
+        inputs: "{{ lookup('file', playbook_dir + '/custom_cred/inputs.yml') | from_yaml }}"
+        injectors: "{{ lookup('file', playbook_dir + '/custom_cred/injector.yml') | from_yaml }}"
+        state: present
+        kind: cloud
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        tower_host: https://localhost
+        validate_certs: false
+
+    - name: Add custom credential
+      awx.awx.tower_credential:
+        name: SNOW Credential 
+        credential_type: SNOW_CL Credential 
+        organization: Default 
+        inputs:
+          username: "{{ username }}"
+          password: "{{ password }}"
+          instance: "{{ instance }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        tower_host: https://localhost
+        validate_certs: false
+
+    - name: Add compliance check job template
+      awx.awx.tower_job_template:
+        name: "SNOW-Demo-Compliance-Check"
+        job_type: run
+        inventory: "Workshop Inventory"
+        project: "SNOW_CL"
+        playbook: check_compliance.yml
+        credentials: 
+          - "Workshop Credential"
+          - "SNOW Credential"
+        state: "present"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        tower_host: https://localhost
+        tower_verify_ssl: false
+
+    - name: add job template - compliance fix
+      tower_job_template:
+        name: "SNOW-Demo-Compliance-Fix"
+        job_type: run
+        inventory: "Workshop Inventory"
+        project: "SNOW_CL"
+        playbook: fix_banner.yml
+        credentials: 
+          - "Workshop Credential"
+          - "SNOW Credential"
+        state: "present"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        tower_host: https://localhost
+        tower_verify_ssl: false
