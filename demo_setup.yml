@@ -6,7 +6,7 @@
   gather_facts: false
 
   tasks:
-    - name: import login credentials for servicenow
+    - name: import login credentials for ServiceNow
       include_vars: "{{lookup('first_found', login_info)}}"
       vars:
         login_info:
