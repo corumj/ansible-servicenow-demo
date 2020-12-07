@@ -1,0 +1,31 @@
+---
+- name: SETUP TOWER FOR CLOSED LOOP INCIDENT MGMT DEMO
+  hosts: control
+  connection: local
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: import login credentials for servicenow
+      include_vars: "{{lookup('first_found', login_info)}}"
+      vars:
+        login_info:
+          - 'private.yml'
+          - 'login_info.yml'
+
+    - name: Create SNOW_CL Tower Project
+      awx.awx.tower_project:
+        name: SNOW_CL 
+        state: present
+        organization: Default 
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        tower_host: https://localhost
+        tower_verify_ssl: false
+        scm_type: git 
+        scm_url:
+        scm_update_on_launch: yes 
+        
+        
+
+        
