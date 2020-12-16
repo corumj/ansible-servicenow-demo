@@ -21,7 +21,7 @@ Follow the instructions here for setting up the ServiceNow REST Message and Busi
 ## Setup ServiceNow for demo
 Get yourself a ServiceNow developer instance from https://developer.servicenow.com  I typically avoid the bleeding edge type of instance and opt for one of the LTS versions
 
-When you have the instance, you'll need to use the navigation filter and enter `sys_properties.list`
+When you have the instance, because SNOW doesn't trust our Let's Encrypt CA, you'll need to set an exception.  Use the navigation filter and enter `sys_properties.list` and press enter.
 When that opens, click New and set the following:
 
 | Field | value |
