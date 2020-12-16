@@ -20,7 +20,10 @@ Get yourself a ServiceNow developer instance from https://developer.servicenow.c
 
 When you have the instance, you'll need to use the navigation filter and enter `sys_properties.list`
 When that opens, click New and set the following:
-Name: com.glide.communications.httpclient.verify_revoked_certificate 
-Type: True/False 
-value: false
+
+| Field | value |
+| ----- | ----- |
+| Name  | com.glide.communications.httpclient.verify_revoked_certificate |
+| Type  | True/False |
+| value | false |
 
