@@ -15,7 +15,7 @@ Using the included VS Code server, and the terminal, open the studentX home fold
 Create a copy of the `login_info_template.yml` named `login_info.yml` and fill out the required information for Tower and your ServiceNow Instance. 
 
 ## Setup Ansible Automation Platform for demo
-Run the demo_setup playbook `ansible-galaxy demo_setup.yml` 
+Run the demo_setup playbook `ansible-playbook demo_setup.yml` 
 
 Note: if we get an error when running the demo_setup.yml playbook complaining about allowed parameters in the credential field, we didn't install the awx.awx collection, so do that.
 
