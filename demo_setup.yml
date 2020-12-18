@@ -188,7 +188,7 @@
                 status_code: 201 
               register: method 
 
-            - name: Add content-type header 
+            - name: Add content-type header to the http method
               uri:
                 url: "https://{{ instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
                 user: "{{ username }}"
