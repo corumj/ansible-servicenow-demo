@@ -1,6 +1,6 @@
 # Ansible ServiceNow Demo
 
-Simple to setup version of this demo: https://github.com/ansible/workshops/tree/devel/demos/servicenow/2-closed_loop_incident_mgmt
+This is a simple to setup version of this demo: https://github.com/ansible/workshops/tree/devel/demos/servicenow/2-closed_loop_incident_mgmt
 
 This demo showcases Tower's ability to update ServiceNow tickets when it finds a compliance issue.  It also leverages a ServiceNow Business rule to react to the creation of a ticket and perform an automation by triggering an Ansible job template to run via Tower's REST API.
 
