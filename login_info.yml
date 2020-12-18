@@ -1,6 +1,0 @@
----
-username: admin
-password: password123
-instance: dev85752
-tower_username: "admin"
-tower_password: "ansible"
