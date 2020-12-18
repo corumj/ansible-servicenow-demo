@@ -4,6 +4,8 @@
   connection: local
   become: true
   gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.6
 
   tasks:
     - name: import login credentials for ServiceNow
@@ -12,6 +14,12 @@
         login_info:
           - 'private.yml'
           - 'login_info.yml'
+
+    - name: Make sure python packages are installed 
+      pip:
+        name: pysnow
+        state: present 
+        executable: pip-3.6
 
     - name: Create SNOW_CL Tower Project
       awx.awx.tower_project:
@@ -85,3 +93,280 @@
         tower_password: "{{ tower_password }}"
         tower_host: https://localhost
         tower_verify_ssl: false
+
+# ----------------------------
+# Currently not working, modules don't appear idempotent
+# Customer recommended using the URI module anyway since the SNOW 
+# table API is fairly intuitive
+# See URI section below  
+# ----------------------------
+    # - name: Set up ServiceNow for the demo 
+    #   block: 
+    #     - name: Set ServiceNow system property to ignore Tower's TLS Cert 
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_properties  
+    #         data:
+    #           name: com.glide.communications.httpclient.verify_revoked_certificate
+    #           type: boolean 
+    #           value: false 
+              
+    #     - name: Create Basic Auth profile 
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_auth_profile_basic
+    #         data: 
+    #           name: mytower_creds 
+    #           password: "{{ tower_password }}"
+    #           username: "{{ tower_username }}"
+    #       register: profile
+
+    #     - name: Create System Definition REST Message
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_rest_message
+    #         data:
+    #           authentication_type: basic 
+    #           basic_auth_profile: mytower_creds
+    #           use_mutual_auth: false 
+    #           name: Ansible Tower Demo
+    #           rest_endpoint: "{{ tower_url }}/api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
+
+    #     - name: Create HTTP Method 
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_rest_message_fn 
+    #         data:
+    #           rest_message: Ansible Tower Demo
+    #           authentication_type: inherit_from_parent 
+    #           content: |
+    #             {
+    #               "extra_vars": {
+    #                 "incident_num": "${INC}"
+    #               }
+    #             }
+    #           http_method: post 
+    #           function_name: Launch Compliance Fix 
+    #           qualified_name: "Ansible Tower Demo [ Launch Compliance Fix ]"
+    #       register: method 
+            
+    #     - name: debug 
+    #       debug:
+    #         var: method 
+
+    #     - name: Add content-type header to HTTP Method 
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_rest_message_fn_headers
+    #         data:
+    #           rest_message_function: "{{ method.json.result.sys_id }}"  
+    #           name: Content-Type 
+    #           value: "application/json"
+
+    #     - name: Create ServiceNow business rule
+    #       servicenow.servicenow.snow_record:
+    #         username: "{{ username }}"
+    #         password: "{{ password }}"
+    #         instance: "{{ instance }}"
+    #         state: present 
+    #         table: sys_script
+    #         data:
+    #           name: Ansible Tower Demo
+    #           action_insert: true 
+    #           advanced: true 
+    #           when: after 
+    #           collection: incident 
+    #           script: |
+    #             (function executeRule(current, previous /*null when async*/ ) {
+    #               try {
+    #                   var r = new sn_ws.RESTMessageV2('Ansible Tower Demo', 'Launch compliance fix');
+    #                   r.setStringParameterNoEscape('INC', current.number);
+
+    #                   var response = r.execute();
+    #                   var responseBody = response.getBody();
+    #                   var httpStatus = response.getStatusCode();
+    #                   current.comments = "Contacting Ansible Tower to fix bespoke incident";
+    #                   current.state = '2';
+    #                   current.update();
+    #               } catch (ex) {
+    #                   var message = ex.message;
+    #               }
+    #             })(current, previous);
+    #           filter_condition: "short_descriptionLIKEBANNER^EQ"
+  
+#  
+# ------- End of Section --------
+#
+
+#
+# ------ Begin Service Now URI Section -------
+#
+
+    - name: Set ServiceNow system property to ignore Tower's TLS certificate 
+      # don't do this in production please
+      block: 
+        - name: Find sys_id for existing system property to verify ssl certificates
+          uri:
+            url: https://{{ instance }}.service-now.com/api/now/table/sys_properties?sysparm_fields=value,name,type,sys_id&name=com.glide.communications.httpclient.verify_revoked_certificate
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: GET 
+            return_content: yes
+          register: ssl_verify
+
+        - name: Create the system property and set to false
+          uri:
+            url: https://{{ instance }}.service-now.com/api/now/table/sys_properties
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              name: com.glide.communications.httpclient.verify_revoked_certificate
+              type: boolean 
+              value: false 
+            status_code: 201 
+            return_content: yes
+          when: not ssl_verify.json.result
+
+    - name: Create ServiceNow REST Message for Tower Demo
+      block:
+        - name: Check if Basic Auth Profile for Tower exists already 
+          uri: 
+            url: "https://{{ instance }}.service-now.com/api/now/table/sys_rest_message?name=Ansible%20Tower%20Demo"
+            user: "{{ username }}"
+            password: "{{ password }}"
+            return_content: yes 
+          register: response 
+
+        - name: Create the parts of a REST Message
+          block:
+            - name: Create the Basic Auth Profile 
+              uri:
+                url: "https://{{ instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
+                user: "{{ username }}"
+                password: "{{ password }}"
+                method: POST
+                body_format: json 
+                body:
+                  name: mytower_creds
+                  password: "{{ tower_password }}"
+                  username: "{{ tower_username }}"
+                return_content: yes 
+                status_code: 201 
+              register: profile 
+
+            - name: Create REST Message
+              uri:
+                url: "https://{{ instance }}.service-now.com/api/now/table/sys_rest_message" 
+                user: "{{ username }}"
+                password: "{{ password }}"
+                method: POST
+                body_format: json 
+                body:
+                  authentication_type: basic 
+                  basic_auth_profile: mytower_creds
+                  use_mutual_auth: false 
+                  name: Ansible Tower Demo
+                  rest_endpoint: "{{ tower_url }}/api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
+                return_content: yes 
+                status_code: 201 
+              register: message 
+
+            - name: Create HTTP Method 
+              uri:
+                url: "https://{{ instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
+                user: "{{ username }}"
+                password: "{{ password }}"
+                method: POST
+                body_format: json 
+                body:
+                  rest_message: Ansible Tower Demo
+                  authentication_type: inherit_from_parent 
+                  content: |
+                    {
+                      "extra_vars": {
+                        "incident_num": "${INC}"
+                      }
+                    }
+                  http_method: post 
+                  function_name: Launch Compliance Fix 
+                  qualified_name: "Ansible Tower Demo [ Launch Compliance Fix ]"
+                return_content: yes 
+                status_code: 201 
+              register: method 
+
+            - name: Add content-type header 
+              uri:
+                url: "https://{{ instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
+                user: "{{ username }}"
+                password: "{{ password }}"
+                method: POST
+                body_format: json 
+                body:
+                  rest_message_function: "{{ method.json.result.sys_id }}"  
+                  name: Content-Type 
+                  value: "application/json"
+                return_content: yes 
+                status_code: 201 
+
+          when: not response.json.result
+        
+    - name: Create ServiceNow Business Rule for Tower Demo
+      block:
+        - name: Check if Business Rule already exists
+          uri:
+            url: "https://{{ instance }}.service-now.com/api/now/table/sys_script?name=Ansible%20Tower%20Demo"
+            user: "{{ username }}"
+            password: "{{ password }}"
+            return_content: yes 
+          register: response 
+
+        - name: Create Business Rule 
+          uri:
+            url: https://{{ instance }}.service-now.com/api/now/table/sys_script
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              name: Ansible Tower Demo
+              action_insert: true 
+              advanced: true 
+              when: after 
+              collection: incident 
+              script: |
+                (function executeRule(current, previous /*null when async*/ ) {
+                  try {
+                      var r = new sn_ws.RESTMessageV2('Ansible Tower Demo', 'Launch compliance fix');
+                      r.setStringParameterNoEscape('INC', current.number);
+
+                      var response = r.execute();
+                      var responseBody = response.getBody();
+                      var httpStatus = response.getStatusCode();
+                      current.comments = "Contacting Ansible Tower to fix bespoke incident";
+                      current.state = '2';
+                      current.update();
+                  } catch (ex) {
+                      var message = ex.message;
+                  }
+                })(current, previous);
+              filter_condition: "short_descriptionLIKEBANNER^EQ"
+            status_code: 201 
+            return_content: yes
+          when: not response.json.result
