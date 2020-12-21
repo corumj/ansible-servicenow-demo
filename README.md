@@ -7,6 +7,7 @@ This demo showcases Tower's ability to update ServiceNow tickets when it finds a
 ## Requirements
 * Ansible Networking workshop spun up
 * ServiceNow Developer Instance 
+  * Tested with New York and Paris versions
 
 ## Setup Ansible Automation Platform for demo
 
