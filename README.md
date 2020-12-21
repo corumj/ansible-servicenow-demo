@@ -9,8 +9,9 @@ This demo showcases Tower's ability to update ServiceNow tickets when it finds a
 * ServiceNow Developer Instance 
 
 ## Setup Ansible Automation Platform for demo
-1. Install the awx.awx collection from the terminal with `ansible-galaxy collection install awx.awx`
-2. Using the included VS Code server, and the terminal, open the studentX home folder in the terminal and clone this repository.
+
+1. Using the included VS Code server, and the terminal, open the studentX home folder in the terminal and clone this repository.
+2. Install the awx.awx collection from the vs-code terminal with `ansible-galaxy collection install awx.awx`
 3. Create a copy of the `login_info_template.yml` named `login_info.yml` and fill out the required information for Tower and your ServiceNow Instance. 
 4. Run the demo_setup playbook `ansible-playbook demo_setup.yml` 
 
