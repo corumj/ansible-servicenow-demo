@@ -4,8 +4,6 @@
   connection: local
   become: true
   gather_facts: false
-  vars:
-    ansible_python_interpreter: /usr/bin/python-3.6
 
   tasks:
     - name: import login credentials for ServiceNow
