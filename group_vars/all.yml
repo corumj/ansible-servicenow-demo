@@ -1,0 +1,1 @@
+aws_region: us-east-1 # must match your boto config profile - used for community.aws modules
