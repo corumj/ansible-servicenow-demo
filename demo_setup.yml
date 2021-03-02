@@ -158,7 +158,7 @@
                   basic_auth_profile: mytower_creds
                   use_mutual_auth: false 
                   name: Ansible Tower Demo
-                  rest_endpoint: "{{ tower_url }}/api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
+                  rest_endpoint: "{{ tower_url }}api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
                 return_content: yes 
                 status_code: 201 
               register: message 

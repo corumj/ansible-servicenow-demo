@@ -1,0 +1,22 @@
+---
+- name: Setup ServiceNow demo 
+  hosts: localhost
+  connection: local 
+  vars:
+    snow_instance: "{{ survey_snow_instance }}"
+    snow_username: "{{ survey_snow_username }}"
+    snow_password: "{{ survey_snow_password }}"
+  tasks:
+    - name: Find AWS User information
+      amazon.aws.aws_caller_info:
+        profile: "{{ aws_profile | default('') }}"
+        region: "{{ aws_region }}"
+        aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+        aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+      register: user
+
+    - name: Initialize Demo
+      include_role:
+        name: snow-init 
+      vars:
+        aws_user: "{{ user.user_id | regex_search(':(.*)', '\\1') | join('') }}"

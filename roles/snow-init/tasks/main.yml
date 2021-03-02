@@ -1,0 +1,28 @@
+---
+- name: Setup SNOW Custom Credential 
+  awx.awx.tower_credential_type:
+    name: ServiceNow
+    description: Credentials type for ServiceNow
+    kind: cloud
+    inputs: "{{ lookup('file', 'inputs_snow.json') }}"
+    injectors: "{{ lookup('file', 'injectors_snow.json') }}"
+    state: present
+    validate_certs: false
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ admin_password }}"
+    tower_host: "https://ansible.{{ aws_user }}.ade.redhatgov.io"
+    tower_verify_ssl: true
+
+- name: Add custom credential
+  awx.awx.tower_credential:
+    name: SNOW Credential 
+    credential_type: SNOW_CL Credential 
+    organization: Default 
+    inputs:
+      username: "{{ username }}"
+      password: "{{ password }}"
+      instance: "{{ instance }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ admin_password }}"
+    tower_host: "https://ansible.{{ aws_user }}.ade.redhatgov.io"
+    tower_verify_ssl: true

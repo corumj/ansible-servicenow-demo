@@ -1,4 +1,6 @@
 ---
 collections:
   - awx.awx
+  - amazon.aws 
+  - community.aws 
   - servicenow.servicenow
