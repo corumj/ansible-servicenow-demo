@@ -31,21 +31,21 @@
   awx.awx.tower_job_launch:
     job_template: 2. Provision
     extra_vars:
-      group_name: "compliance"
-      short_desc: "borg"
-      server_env: "dev" 
-      server_os: "windows"
-      business_domain_name: "Red Hat"
+      survey_group_name: "compliance"
+      survey_short_desc: "borg"
+      survey_server_env: "dev" 
+      survey_server_os: "windows"
+      survey_business_domain_name: "Red Hat"
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     tower_verify_ssl: true
   register: job 
 
-- name: Wait for job max 120s
+- name: Wait for compliance target server to provision
   tower_job_wait:
     job_id: "{{ job.id }}"
-    timeout: 500
+    timeout: 600
 
 - name: Add ServiceNow - Compliance Check template 
   awx.awx.tower_job_template:
