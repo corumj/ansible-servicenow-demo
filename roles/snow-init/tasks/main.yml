@@ -8,9 +8,9 @@
     injectors: "{{ lookup('file', 'injectors_snow.yml') }}"
     state: present
     validate_certs: false
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ admin_password }}"
-    tower_host: "https://ansible.{{ aws_user }}.ade.redhatgov.io"
+    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     tower_verify_ssl: true
 
 - name: Add custom credential
@@ -22,7 +22,7 @@
       username: "{{ username }}"
       password: "{{ password }}"
       instance: "{{ instance }}"
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ admin_password }}"
-    tower_host: "https://ansible.{{ aws_user }}.ade.redhatgov.io"
+    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     tower_verify_ssl: true
