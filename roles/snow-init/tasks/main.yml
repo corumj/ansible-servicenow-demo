@@ -7,11 +7,10 @@
     inputs: "{{ lookup('file', 'files/inputs_snow.yml') | from_yaml }}"
     injectors: "{{ lookup('file', 'files/injectors_snow.yml') | from_yaml }}"
     state: present
-    validate_certs: false
+    validate_certs: true
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    tower_verify_ssl: true
 
 - name: Add custom credential
   awx.awx.tower_credential:
@@ -62,4 +61,4 @@
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    tower_verify_ssl: true
+    validate_certs: true
