@@ -47,6 +47,7 @@
     credentials: 
       - "AWS Windows"
       - "SNOW"
+    limit: compliance
     state: "present"
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
