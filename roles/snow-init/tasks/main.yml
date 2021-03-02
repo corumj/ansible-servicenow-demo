@@ -15,8 +15,8 @@
 
 - name: Add custom credential
   awx.awx.tower_credential:
-    name: SNOW Credential 
-    credential_type: SNOW_CL Credential 
+    name: SNOW 
+    credential_type: ServiceNow 
     organization: Default 
     inputs:
       username: "{{ snow_username }}"
