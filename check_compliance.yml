@@ -12,7 +12,7 @@
         state: present 
 
     - name: Setup DSC Local Configuration Manager
-      ansible.windows.win_shell: |
+      ansible.builtin.win_shell: |
         [DscLocalConfigurationManager()]
         Configuration LCMSettings {
             Node localhost
