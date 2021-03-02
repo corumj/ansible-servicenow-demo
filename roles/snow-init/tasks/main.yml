@@ -19,9 +19,9 @@
     credential_type: SNOW_CL Credential 
     organization: Default 
     inputs:
-      username: "{{ username }}"
-      password: "{{ password }}"
-      instance: "{{ instance }}"
+      username: "{{ snow_username }}"
+      password: "{{ snow_password }}"
+      instance: "{{ snow_instance }}"
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
