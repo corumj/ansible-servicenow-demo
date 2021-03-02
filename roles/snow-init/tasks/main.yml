@@ -51,7 +51,7 @@
   awx.awx.tower_job_template:
     name: "SNOW-Demo-Compliance-Check"
     job_type: run
-    inventory: "Workshop Inventory"
+    inventory: "AWS"
     project: "ServiceNow"
     playbook: check_compliance.yml
     credentials: 
