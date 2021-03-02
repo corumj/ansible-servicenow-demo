@@ -28,7 +28,7 @@
     tower_verify_ssl: true
 
 - name: Spin up a Windows server to compliance check 
-  tower_job_launch:
+  awx.awx.tower_job_launch:
     job_template: 2. Provision
     extra_vars:
       group_name: "compliance"
