@@ -4,8 +4,8 @@
     name: ServiceNow
     description: Credentials type for ServiceNow
     kind: cloud
-    inputs: "{{ lookup('file', 'inputs_snow.yml') }}"
-    injectors: "{{ lookup('file', 'injectors_snow.yml') }}"
+    inputs: "{{ lookup('file', 'inputs_snow.yml') | to_yaml }}"
+    injectors: "{{ lookup('file', 'injectors_snow.yml') | to_yaml }}"
     state: present
     validate_certs: false
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
