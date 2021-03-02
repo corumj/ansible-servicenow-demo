@@ -7,7 +7,7 @@
       win_shell: install-packageprovider -name nuget -force
 
     - name: Install CISDSC PS Module 
-      ansible.windows.win_psmodule:
+      win_psmodule:
         name: CISDSC
         state: present 
 
