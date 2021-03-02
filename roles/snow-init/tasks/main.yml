@@ -26,3 +26,29 @@
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     tower_verify_ssl: true
+
+- name: Spin up a Windows server to compliance check 
+  vars:
+    group_name: "compliance"
+    short_desc: "borg"
+    server_env: "dev" 
+    server_os: "windows"
+    business_domain_name: "Red Hat"
+  include_role: 
+    name: aws-ec2-provision 
+
+- name: Add ServiceNow - Compliance Check template 
+  awx.awx.tower_job_template:
+    name: "SNOW-Demo-Compliance-Check"
+    job_type: run
+    inventory: "Workshop Inventory"
+    project: "ServiceNow"
+    playbook: check_compliance.yml
+    credentials: 
+      - "AWS Windows"
+      - "SNOW"
+    state: "present"
+    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    tower_verify_ssl: true
