@@ -12,7 +12,7 @@
         state: present 
 
     - name: Setup DSC Local Configuration Manager
-      ansible.windows.win_shell: |
+      win_shell: |
         [DscLocalConfigurationManager()]
         Configuration LCMSettings {
             Node localhost
@@ -32,7 +32,7 @@
       become: true
 
     - name: Apply CIS DSC 
-      ansible.windows.win_dsc:
+      win_dsc:
         resource_name: CIS_Microsoft_Windows_Server_2019_Member_Server_Release_1809
         ExcludeList:
           - 1.1.1 # Enforce password history
