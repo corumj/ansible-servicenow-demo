@@ -1,6 +1,8 @@
 ---
 collections:
-  - awx.awx
+  - community.aws
+  - ansible.windows
+  - community.windows
   - amazon.aws
-  - community.aws 
-  - servicenow.servicenow
+  - awx.awx
+  # - ansible.tower
