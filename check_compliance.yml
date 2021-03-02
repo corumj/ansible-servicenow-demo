@@ -11,6 +11,26 @@
         name: CISDSC
         state: present 
 
+    - name: Setup DSC Local Configuration Manager
+      ansible.windows.win_shell: |
+        [DscLocalConfigurationManager()]
+        Configuration LCMSettings {
+            Node localhost
+            {
+                Settings
+                {
+                    RefreshMode = “Push”
+                    ConfigurationMode = 'ApplyOnly'
+                }
+            }
+        }
+        LCMSettings
+        Set-DscLocalConfigurationManager -Path .\LCMSettings -Verbose
+        Set-Item -Path 'WSMan:\localhost\MaxEnvelopeSizeKb' -Value 8192
+      args:
+        chdir: c:\users\administrator
+      become: true
+
     - name: Apply CIS DSC 
       win_dsc:
         resource_name: CIS_Microsoft_Windows_Server_2019_Member_Server_Release_1809
