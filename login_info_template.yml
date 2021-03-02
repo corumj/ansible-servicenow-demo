@@ -1,7 +1,0 @@
----
-username: admin
-password: password
-instance: dev84790
-tower_username: "admin"
-tower_password: "ansible"
-tower_url:  https://student1.6618.open.redhat.com
