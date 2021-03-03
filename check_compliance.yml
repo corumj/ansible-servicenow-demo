@@ -87,7 +87,7 @@
 
   handlers:
     - name: create incident
-      snow_record:
+      servicenow.servicenow.snow_record:
         username: "{{ SN_USERNAME }}"
         password: "{{ SN_PASSWORD }}"
         instance: "{{ SN_INSTANCE }}"
