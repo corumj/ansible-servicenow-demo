@@ -95,6 +95,10 @@
           check_mode: no
           become_user: awx 
           delegate_to: localhost
+
+        - name: Print out the incident number
+          debug:
+            var: snow_var.record.number
       tags: 
         - never  
         - check
