@@ -3,84 +3,63 @@
   hosts: tag_compliance
   gather_facts: false
   tasks:
-    - name: Install latest nuget (required for DSC Resource Kit)
-      win_shell: install-packageprovider -name nuget -force
+    - name: Verify the Windows folder permissions are properly set | windows-base-100
+      win_file:
+        path: C:\windows
+        state: directory
 
-    - name: Install CISDSC PS Module 
-      win_psmodule:
-        name: CISDSC
-        state: present 
+    - name: Safe DLL Search Mode is Enabled | windows-base-101
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Control\Session Manager
+        name: "SafeDllSearchMode"
+        data: "0"
+        type: dword
 
-    - name: Setup DSC Local Configuration Manager
-      win_shell: |
-        [DscLocalConfigurationManager()]
-        Configuration LCMSettings {
-            Node localhost
-            {
-                Settings
-                {
-                    RefreshMode = “Push”
-                    ConfigurationMode = 'ApplyOnly'
-                }
-            }
-        }
-        LCMSettings
-        Set-DscLocalConfigurationManager -Path .\LCMSettings -Verbose
-        Set-Item -Path 'WSMan:\localhost\MaxEnvelopeSizeKb' -Value 8192
-      args:
-        chdir: c:\users\administrator
-      become: true
+    - name: Anonymous Access to Windows Shares and Named Pipes is Disallowed | windows-base-102
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Services\LanManServer\Parameters
+        name: "RestrictNullSessAccess"
+        data: "1"
+        type: dword
 
-    - name: Apply CIS DSC 
-      win_dsc:
-        resource_name: CIS_Microsoft_Windows_Server_2019_Member_Server_Release_1809
-        ExcludeList:
-          - 1.1.1 # Enforce password history
-          - 1.1.2 # Maximum password age
-          - 1.1.3 # Minimum password age
-          - 1.1.4 # Minimum password length
-          - 1.1.5 # Enforce complexity requirements
-          - 1.2.1 # Account lockout duration
-          - 1.2.2 # Account lockout threshold
-          - 1.2.3 # Reset account lockout counter
-          - 2.3.15 # Rename administrator account
-        2316AccountsRenameguestaccount: CISGuest
-      register: compliance 
+    - name: All Shares are Configured to Prevent Anonymous Access | windows-base-103
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Services\LanManServer\Parameters
+        name: "NullSessionShares"
+        data: ""
+        type: multistring
 
-    - name: print compliance 
-      debug:
-        var: compliance 
+    - name: Force Encrypted Windows Network Passwords | windows-base-104
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Services\LanmanWorkstation\Parameters
+        name: "EnablePlainTextPassword"
+        data: "0"
+        type: dword
 
-    # - name: GATHER THE CURRENT BANNER ON THE DEVICE
-    #   ios_command:
-    #     commands:
-    #       - show banner login
-    #   register: banner
+    - name: Disable SMB1 to Windows Shares | windows-base-105
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Services\LanManServer\Parameters
+        name: "SMB1"
+        data: "0"
+        type: dword
 
-    # - name: VISUAL OUTPUT
-    #   debug:
-    #     var: banner.stdout[0]
-    #   when: not banner.stdout[0]
+    - name: Strong Windows NTLMv2 Authentication Enabled; Weak LM Disabled | windows-base-201
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Control\Lsa
+        name: "LmCompatibilityLevel"
+        data: "4"
+        type: dword
 
-    # - name: OPEN AN INCIDENT (SERVICENOW) IF NO BANNER IS CONFIGURED
-    #   block:
-    #     - name: CREATE AN INCIDENT
-    #       snow_record:
-    #         username: "{{ SN_USERNAME }}"
-    #         password: "{{ SN_PASSWORD }}"
-    #         instance: "{{ SN_INSTANCE }}"
-    #         state: present
-    #         table: incident
-    #         data:
-    #           short_description: "BANNER MISSING ON {{inventory_hostname}}"
-    #           severity: 3
-    #           priority: 2
-    #           caller_id: "System Administrator"
-    #           comments: "The login banner is missing on {{inventory_hostname}}"
-    #       register: snow_var
-    #       delegate_to: localhost
+    - name: Enable Strong Encryption for Windows Network Sessions on Clients | windows-base-202
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Control\Lsa\MSV1_0
+        name: "NtlmMinClientSec"
+        data: "537395200"
+        type: dword
 
-    #     - name: VISUAL OUTPUT OF INCIDENT NUMBER
-    #       debug:
-    #         var: snow_var.record.number
-    #   when: not banner.stdout[0]
+    - name: Enable Strong Encryption for Windows Network Sessions on Servers | windows-base-203
+      win_regedit:
+        path: HKLM:\System\CurrentControlSet\Control\Lsa\MSV1_0
+        name: "NtlmMinServerSec"
+        data: "537395200"
+        type: dword
