@@ -62,3 +62,130 @@
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     validate_certs: true
+
+- name: Create ServiceNow REST Message for Tower Demo
+  block:
+    - name: Check if Basic Auth Profile for Tower exists already 
+      uri: 
+        url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name=Ansible%20Tower%20Demo"
+        user: "{{ username }}"
+        password: "{{ password }}"
+        return_content: yes 
+      register: response 
+
+    - name: Create the parts of a REST Message
+      block:
+        - name: Create the Basic Auth Profile 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              name: mytower_creds
+              password: "{{ tower_password }}"
+              username: "{{ tower_username }}"
+            return_content: yes 
+            status_code: 201 
+          register: profile 
+
+        - name: Create REST Message
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message" 
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              authentication_type: basic 
+              basic_auth_profile: mytower_creds
+              use_mutual_auth: false 
+              name: Ansible Tower Demo
+              rest_endpoint: "{{ lookup('env', 'TOWER_HOST') }}/api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
+            return_content: yes 
+            status_code: 201 
+          register: message 
+
+        - name: Create HTTP Method 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message: Ansible Tower Demo
+              authentication_type: inherit_from_parent 
+              content: |
+                {
+                  "extra_vars": {
+                    "incident_num": "${INC}"
+                  }
+                }
+              http_method: post 
+              function_name: Launch Compliance Fix 
+              qualified_name: "Ansible Tower Demo [ Launch Compliance Fix ]"
+            return_content: yes 
+            status_code: 201 
+          register: method 
+
+        - name: Add content-type header to the http method
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
+            user: "{{ username }}"
+            password: "{{ password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message_function: "{{ method.json.result.sys_id }}"  
+              name: Content-Type 
+              value: "application/json"
+            return_content: yes 
+            status_code: 201 
+
+      when: not response.json.result
+    
+- name: Create ServiceNow Business Rule for Tower Demo
+  block:
+    - name: Check if Business Rule already exists
+      uri:
+        url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_script?name=Ansible%20Tower%20Demo"
+        user: "{{ username }}"
+        password: "{{ password }}"
+        return_content: yes 
+      register: response 
+
+    - name: Create Business Rule 
+      uri:
+        url: https://{{ snow_instance }}.service-now.com/api/now/table/sys_script
+        user: "{{ username }}"
+        password: "{{ password }}"
+        method: POST
+        body_format: json 
+        body:
+          name: Ansible Tower Demo
+          action_insert: true 
+          advanced: true 
+          when: after 
+          collection: incident 
+          script: |
+            (function executeRule(current, previous /*null when async*/ ) {
+              try {
+                  var r = new sn_ws.RESTMessageV2('Ansible Tower Demo', 'Launch compliance fix');
+                  r.setStringParameterNoEscape('INC', current.number);
+
+                  var response = r.execute();
+                  var responseBody = response.getBody();
+                  var httpStatus = response.getStatusCode();
+                  current.comments = "Contacting Ansible Tower to fix bespoke incident";
+                  current.state = '2';
+                  current.update();
+              } catch (ex) {
+                  var message = ex.message;
+              }
+            })(current, previous);
+          filter_condition: "short_descriptionLIKEBANNER^EQ"
+        status_code: 201 
+        return_content: yes
+      when: not response.json.result
