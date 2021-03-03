@@ -44,7 +44,7 @@
 - name: Add ServiceNow - Compliance Check template 
   awx.awx.tower_job_template:
     name: "SNOW-Demo-Compliance-Check"
-    job_type: run
+    job_type: check
     inventory: "AWS"
     project: "ServiceNow"
     playbook: check_compliance.yml
@@ -184,6 +184,23 @@
         status_code: 201 
         return_content: yes
       when: not response.json.result
+
+- name: add job template - compliance fix
+  awx.awx.tower_job_template:
+    name: "SNOW-Demo-Compliance-Fix"
+    job_type: run
+    inventory: AWS
+    project: "ServiceNow"
+    playbook: check_compliance.yml
+    credentials: 
+      - "AWS Windows"
+      - "SNOW"
+    ask_variables_on_launch: yes
+    state: "present"
+    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    tower_verify_ssl: true
 
 - name: Wait for compliance target server to provision
   tower_job_wait:
