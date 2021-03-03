@@ -41,11 +41,6 @@
     tower_verify_ssl: true
   register: job 
 
-- name: Wait for compliance target server to provision
-  tower_job_wait:
-    job_id: "{{ job.id }}"
-    timeout: 1600
-
 - name: Add ServiceNow - Compliance Check template 
   awx.awx.tower_job_template:
     name: "SNOW-Demo-Compliance-Check"
@@ -189,3 +184,8 @@
         status_code: 201 
         return_content: yes
       when: not response.json.result
+
+- name: Wait for compliance target server to provision
+  tower_job_wait:
+    job_id: "{{ job.id }}"
+    timeout: 1600
