@@ -87,7 +87,8 @@
 
   handlers:
     - name: create incident
-      snow_record:
+      local_action:
+        module: snow_record
         username: "{{ SN_USERNAME }}"
         password: "{{ SN_PASSWORD }}"
         instance: "{{ SN_INSTANCE }}"
@@ -101,5 +102,4 @@
           comments: "The system is out of compliance on {{ inventory_hostname }}"
       register: snow_var
       check_mode: no
-      delegate_to: localhost
         
