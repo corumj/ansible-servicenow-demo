@@ -63,8 +63,8 @@
     - name: Check if Basic Auth Profile for Tower exists already 
       uri: 
         url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name=Ansible%20Tower%20Demo"
-        user: "{{ username }}"
-        password: "{{ password }}"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
         return_content: yes 
       register: response 
 
