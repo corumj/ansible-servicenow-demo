@@ -44,7 +44,7 @@
 - name: Wait for compliance target server to provision
   tower_job_wait:
     job_id: "{{ job.id }}"
-    timeout: 600
+    timeout: 1600
 
 - name: Add ServiceNow - Compliance Check template 
   awx.awx.tower_job_template:
