@@ -87,21 +87,19 @@
 
   handlers:
     - name: create incident
-      block:
-        - name: Create an incident in ServiceNow
-          snow_record:
-            username: "{{ SN_USERNAME }}"
-            password: "{{ SN_PASSWORD }}"
-            instance: "{{ SN_INSTANCE }}"
-            state: present
-            table: incident
-            data:
-              short_description: "BANNER"
-              severity: 3
-              priority: 2
-              caller_id: "System Administrator"
-              comments: "The system is out of compliance on {{ inventory_hostname }}"
-          register: snow_var
-          check_mode: no
-          delegate_to: localhost
+      snow_record:
+        username: "{{ SN_USERNAME }}"
+        password: "{{ SN_PASSWORD }}"
+        instance: "{{ SN_INSTANCE }}"
+        state: present
+        table: incident
+        data:
+          short_description: "BANNER"
+          severity: 3
+          priority: 2
+          caller_id: "System Administrator"
+          comments: "The system is out of compliance on {{ inventory_hostname }}"
+      register: snow_var
+      check_mode: no
+      delegate_to: localhost
         
