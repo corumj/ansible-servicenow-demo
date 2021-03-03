@@ -3,11 +3,14 @@
   hosts: tag_compliance
   gather_facts: false
   tasks:
-    - block:
+    - name: Simplified compliance check 
+      block:
         - name: Verify the Windows folder permissions are properly set | windows-base-100
           win_file:
             path: C:\windows
             state: directory
+          register: windowsbase100
+          notify: create incident 
 
         - name: Safe DLL Search Mode is Enabled | windows-base-101
           win_regedit:
@@ -15,6 +18,8 @@
             name: "SafeDllSearchMode"
             data: "0"
             type: dword
+          register: windowsbase101
+          notify: create incident 
 
         - name: Anonymous Access to Windows Shares and Named Pipes is Disallowed | windows-base-102
           win_regedit:
@@ -22,6 +27,8 @@
             name: "RestrictNullSessAccess"
             data: "1"
             type: dword
+          register: windowsbase102
+          notify: create incident 
 
         - name: All Shares are Configured to Prevent Anonymous Access | windows-base-103
           win_regedit:
@@ -29,6 +36,8 @@
             name: "NullSessionShares"
             data: ""
             type: multistring
+          register: windowsbase103
+          notify: create incident 
 
         - name: Force Encrypted Windows Network Passwords | windows-base-104
           win_regedit:
@@ -36,6 +45,8 @@
             name: "EnablePlainTextPassword"
             data: "0"
             type: dword
+          register: windowsbase104
+          notify: create incident 
 
         - name: Disable SMB1 to Windows Shares | windows-base-105
           win_regedit:
@@ -43,6 +54,8 @@
             name: "SMB1"
             data: "0"
             type: dword
+          register: windowsbase105
+          notify: create incident 
 
         - name: Strong Windows NTLMv2 Authentication Enabled; Weak LM Disabled | windows-base-201
           win_regedit:
@@ -50,6 +63,8 @@
             name: "LmCompatibilityLevel"
             data: "4"
             type: dword
+          register: windowsbase201
+          notify: create incident 
 
         - name: Enable Strong Encryption for Windows Network Sessions on Clients | windows-base-202
           win_regedit:
@@ -57,6 +72,8 @@
             name: "NtlmMinClientSec"
             data: "537395200"
             type: dword
+          register: windowsbase202
+          notify: create incident 
 
         - name: Enable Strong Encryption for Windows Network Sessions on Servers | windows-base-203
           win_regedit:
@@ -64,8 +81,27 @@
             name: "NtlmMinServerSec"
             data: "537395200"
             type: dword
-      register: block 
-    
-    - name: print block variable 
-      debug:
-        var: block
+          register: windowsbase203
+          notify: create incident 
+      
+
+  handlers:
+    - name: create incident
+      block:
+        - name: Create an incident in ServiceNow
+          snow_record:
+            username: "{{ SN_USERNAME }}"
+            password: "{{ SN_PASSWORD }}"
+            instance: "{{ SN_INSTANCE }}"
+            state: present
+            table: incident
+            data:
+              short_description: "BANNER"
+              severity: 3
+              priority: 2
+              caller_id: "System Administrator"
+              comments: "The system is out of compliance on {{ inventory_hostname }}"
+          register: snow_var
+          check_mode: no
+          delegate_to: localhost
+        
