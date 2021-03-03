@@ -52,6 +52,7 @@
       - "AWS Windows"
       - "SNOW"
     limit: "tag_compliance"
+    job_tags: check
     state: present
     tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
@@ -79,8 +80,8 @@
             body_format: json 
             body:
               name: mytower_creds
-              password: "{{ lookup('env', 'TOWER_USERNAME') }}"
-              username: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+              password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+              username: "{{ lookup('env', 'TOWER_USERNAME') }}"
             return_content: yes 
             status_code: 201 
           register: profile 

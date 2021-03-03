@@ -94,6 +94,9 @@
           check_mode: no
           become_user: awx 
           delegate_to: localhost
+      tags: 
+        - never  
+        - check
       when: 
         windowsbase100.changed or
         windowsbase101.changed or
