@@ -78,14 +78,14 @@
         - name: Create the Basic Auth Profile 
           uri:
             url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
-            user: "{{ username }}"
-            password: "{{ password }}"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
             method: POST
             body_format: json 
             body:
               name: mytower_creds
-              password: "{{ tower_password }}"
-              username: "{{ tower_username }}"
+              password: "{{ lookup('env', 'TOWER_USERNAME') }}"
+              username: "{{ lookup('env', 'TOWER_PASSWORD') }}"
             return_content: yes 
             status_code: 201 
           register: profile 
@@ -93,8 +93,8 @@
         - name: Create REST Message
           uri:
             url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message" 
-            user: "{{ username }}"
-            password: "{{ password }}"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
             method: POST
             body_format: json 
             body:
@@ -110,8 +110,8 @@
         - name: Create HTTP Method 
           uri:
             url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
-            user: "{{ username }}"
-            password: "{{ password }}"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
             method: POST
             body_format: json 
             body:
@@ -133,8 +133,8 @@
         - name: Add content-type header to the http method
           uri:
             url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
-            user: "{{ username }}"
-            password: "{{ password }}"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
             method: POST
             body_format: json 
             body:
@@ -151,16 +151,16 @@
     - name: Check if Business Rule already exists
       uri:
         url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_script?name=Ansible%20Tower%20Demo"
-        user: "{{ username }}"
-        password: "{{ password }}"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
         return_content: yes 
       register: response 
 
     - name: Create Business Rule 
       uri:
         url: https://{{ snow_instance }}.service-now.com/api/now/table/sys_script
-        user: "{{ username }}"
-        password: "{{ password }}"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
         method: POST
         body_format: json 
         body:
