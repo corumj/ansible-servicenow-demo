@@ -5,18 +5,31 @@ This is a simple to setup version of this demo: https://github.com/ansible/works
 This demo showcases Tower's ability to update ServiceNow tickets when it finds a compliance issue.  It also leverages a ServiceNow Business rule to react to the creation of a ticket and perform an automation by triggering an Ansible job template to run via Tower's REST API.
 
 ## Requirements
-* Ansible Networking workshop spun up
+* Ansible-demo Tower Instance setup following instructions here: https://github.com/corumj/ansible-demo
 * ServiceNow Developer Instance 
   * Tested with New York and Paris versions
 
 ## Setup Ansible Automation Platform for demo
 
-1. Using the included VS Code server, and the terminal, open the studentX home folder in the terminal and clone this repository.
-2. Install the awx.awx collection from the vs-code terminal with `ansible-galaxy collection install awx.awx`
-3. Create a copy of the `login_info_template.yml` named `login_info.yml` and fill out the required information for Tower and your ServiceNow Instance. 
-4. Run the demo_setup playbook `ansible-playbook demo_setup.yml` 
+1. In the Ansible-demo Tower instance, there will be a template called "Select a demo to stage".  Run that and from the drop down select "ServiceNow".
+2. Once that completes, you'll have a new template called SNOW- Initialize Demo.  This is the point where the demo will provision a Windows Server as well as setup the REST Message and Business Rule in ServiceNow.  Run this template, fill out the survey with the SNOW connection info, and wait.
 
-Note: if we get an error when running the demo_setup.yml playbook complaining about allowed parameters in the credential field, we didn't install the awx.awx collection, so do that.
+## Running the demo
+You'll have two new Job Templates:
+1. SNOW-Demo-Compliance-Check
+2. SNOW-Demo-Compliance-Fix
 
-Check that the job templates and credentials have been setup in Ansible Tower.
-In ServiceNow, Search for REST Message and verify you have an Ansible Tower Demo REST Message
+These are actually pointed to the same playbook, `check_compliance.yml` but use tags to change the behavior (check and fix).
+I start with letting people know we have a simple compliance check that's checking some registry settings on a Windows server but we need to know and document when those systems are out of compliance.  Good chance to talk about scheduling jobs as well.
+
+Run the SNOW-Demo-Compliance-Check job template and talk through the log output.  Emphasize "check mode" vs "run mode".  Here it's checking the windows server for compliance, oh something was yellow and should be changed to meet compliance rules, so the template makes a ticket in SNOW.  Could expand the ticket with more details as well, this is just a basic example.  
+
+Once that job completes, I like to pop over to the Job List and show that, while we didn't trigger it, the SNOW-Demo-Compliance-Fix template has been triggered and is running to fix the compliance issue.  Automatic Automation!  
+
+Pop into ServiceNow and show the ticket.  Walk through the updates from bottom to top.  
+Tower created the ticket and noted which server was out of compliance.
+Tower set the defaults we want for severity, priority, etc..  
+Business Rule kicks in and updates the ticket with "Contacting Ansible Tower to fix bespoke incident".  
+The remaining updates in that ticket come from the SNOW-Demo-Compliance-Fix, confirming the fix was implemented, resolving and closing the ticket.
+
+Sometimes I show folks the Business Rule and REST Message if they're interested in how the soup was made.  
