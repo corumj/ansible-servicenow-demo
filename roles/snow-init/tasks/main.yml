@@ -193,6 +193,7 @@
     inventory: AWS
     project: "ServiceNow"
     playbook: check_compliance.yml
+    job_tags: fix
     credentials: 
       - "AWS Windows"
       - "SNOW"
