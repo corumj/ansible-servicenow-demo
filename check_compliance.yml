@@ -86,7 +86,7 @@
             state: present
             table: incident
             data:
-              short_description: "BANNER"
+              short_description: "COMPLIANCE"
               severity: 3
               priority: 2
               caller_id: "System Administrator"

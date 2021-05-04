@@ -181,7 +181,7 @@
                   var message = ex.message;
               }
             })(current, previous);
-          filter_condition: "short_descriptionLIKEBANNER^EQ"
+          filter_condition: "short_descriptionLIKECOMPLIANCE^EQ"
         status_code: 201 
         return_content: yes
       when: not response.json.result
