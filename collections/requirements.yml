@@ -5,5 +5,5 @@ collections:
   - community.windows
   - amazon.aws
   - awx.awx
-  - servicenow.servicenow
+  - servicenow.itsm
   # - ansible.tower
