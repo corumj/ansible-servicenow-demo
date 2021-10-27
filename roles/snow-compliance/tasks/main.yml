@@ -176,6 +176,14 @@
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
     tower_verify_ssl: true
 
+- name: Setup SNOW Rest Messages 
+  include_role:
+    name: snow-rest-message
+
+- name: Setup SNOW business Rule 
+  include_role: 
+    name: snow-business-rule
+    
 - name: Wait for compliance target server to provision
   tower_job_wait:
     job_id: "{{ job.id }}"
