@@ -1,12 +1,12 @@
 ---
-- name: Check if basic auth profile already exists 
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic?name={{ auth_profile_name | urlencode }}" 
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_auth_profile   
+# - name: Check if basic auth profile already exists 
+#   uri:
+#     url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic?name={{ auth_profile_name | urlencode }}" 
+#     user: "{{ snow_username }}"
+#     password: "{{ snow_password }}"
+#     return_content: yes 
+#     status_code: 200 
+#   register: ck_auth_profile   
 
 - name: Create the Basic Auth Profile 
   uri:
@@ -24,14 +24,14 @@
   register: auth_profile 
   when: not ck_auth_profile.json.result
 
-- name: Check if REST message already exists
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name={{ rest_message_name | urlencode }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_rest_message 
+# - name: Check if REST message already exists
+#   uri: 
+#     url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name={{ rest_message_name | urlencode }}"
+#     user: "{{ snow_username }}"
+#     password: "{{ snow_password }}"
+#     return_content: yes 
+#     status_code: 200 
+#   register: ck_rest_message 
 
 - name: Create REST Message
   uri:
@@ -51,14 +51,14 @@
   register: rest_message 
   when: not ck_rest_message.json.result
 
-- name: Check if HTTP Method already exists 
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn?name={{ rest_message_name | urlencode }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_http_method 
+# - name: Check if HTTP Method already exists 
+#   uri: 
+#     url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn?name={{ rest_message_name | urlencode }}"
+#     user: "{{ snow_username }}"
+#     password: "{{ snow_password }}"
+#     return_content: yes 
+#     status_code: 200 
+#   register: ck_http_method 
 
 - name: Create HTTP Method 
   uri:
@@ -87,14 +87,14 @@
   register: http_method 
   when: not ck_http_method.json.result
 
-- name: Check if content-type header is added to HTTP Method 
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers?rest_message_function={{ http_method.json.result.sys_id }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_http_method_header
+# - name: Check if content-type header is added to HTTP Method 
+#   uri: 
+#     url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers?rest_message_function={{ http_method.json.result.sys_id }}"
+#     user: "{{ snow_username }}"
+#     password: "{{ snow_password }}"
+#     return_content: yes 
+#     status_code: 200 
+#   register: ck_http_method_header
 
 - name: Add content-type header to the http method
   uri:
