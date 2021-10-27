@@ -124,6 +124,8 @@
             number: "{{ incident_num }}"
             other:
               work_notes: "Compliance has been updated, marking resolved"
+            close_code: "Solved (Permanently)"
+            close_notes: "Compliance has been updated, closing ticket"
           register: snow_var
           check_mode: no
           become_user: awx 
@@ -137,8 +139,6 @@
               host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: closed
             number: "{{ incident_num }}"
-            close_code: "Solved (Permanently)"
-            close_notes: "Compliance has been updated, closing ticket"
           register: snow_var
           check_mode: no
           become_user: awx 
