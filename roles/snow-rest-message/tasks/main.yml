@@ -53,7 +53,7 @@
 
 - name: Check if HTTP Method already exists 
   uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn?name={{ rest_message_name | urlencode }}"
+    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn?qualified_name={{ rest_message_method_name | urlencode }}"
     user: "{{ snow_username }}"
     password: "{{ snow_password }}"
     return_content: yes 
@@ -89,7 +89,7 @@
 
 - name: Check if content-type header is added to HTTP Method 
   uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers?rest_message_function={{ http_method.json.result.sys_id | default(ck_http_method.json.result.sys_id) }}"
+    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers?rest_message_function={{ http_method.json.result.sys_id | default(ck_http_method.json.result) }}"
     user: "{{ snow_username }}"
     password: "{{ snow_password }}"
     return_content: yes 
