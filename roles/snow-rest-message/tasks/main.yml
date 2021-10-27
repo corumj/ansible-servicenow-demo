@@ -109,5 +109,5 @@
       value: "application/json"
     return_content: yes 
     status_code: 201 
-    when: not ck_http_method_header.json.result
+  when: not ck_http_method_header.json.result
 
