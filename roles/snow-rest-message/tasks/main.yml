@@ -104,7 +104,7 @@
     method: POST
     body_format: json 
     body:
-      rest_message_function: "{{ method.json.result.sys_id }}"  
+      rest_message_function: "{{ http_method.json.result.sys_id | default(ck_http_method.json.result) }}"  
       name: Content-Type 
       value: "application/json"
     return_content: yes 
