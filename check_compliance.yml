@@ -85,7 +85,7 @@
               password: "{{ SN_PASSWORD }}"
               host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: new
-            caller: System Administrator
+            caller: admin
             short_description: "COMPLIANCE"
             impact: low
             urgency: low
