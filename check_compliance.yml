@@ -79,18 +79,17 @@
     - name: Create ServiceNow Incident 
       block:  
         - name: create incident
-          servicenow.servicenow.snow_record:
-            username: "{{ SN_USERNAME }}"
-            password: "{{ SN_PASSWORD }}"
-            instance: "{{ SN_INSTANCE }}"
-            state: present
-            table: incident
-            data:
-              short_description: "COMPLIANCE"
-              severity: 3
-              priority: 2
-              caller_id: "System Administrator"
-              comments: "The system is out of compliance on {{ inventory_hostname }}"
+          servicenow.itsm.incident:
+            instance:
+              username: "{{ SN_USERNAME }}"
+              password: "{{ SN_PASSWORD }}"
+              host: "{{ SN_INSTANCE }}.service-now.com"
+            state: new
+            caller: System Administrator
+            short_description: "COMPLIANCE"
+            impact: low
+            urgency: low
+            description: "The system is out of compliance on {{ inventory_hostname }}"
           register: snow_var
           check_mode: no
           become_user: awx 
@@ -116,32 +115,30 @@
     - name: Update ServiceNow Incident 
       block:  
         - name: Mark incident as resolved
-          servicenow.servicenow.snow_record:
-            username: "{{ SN_USERNAME }}"
-            password: "{{ SN_PASSWORD }}"
-            instance: "{{ SN_INSTANCE }}"
-            state: present
-            table: incident
+          servicenow.itsm.incident:
+            instance:
+              username: "{{ SN_USERNAME }}"
+              password: "{{ SN_PASSWORD }}"
+              host: "{{ SN_INSTANCE }}.service-now.com"
+            state: resolved
             number: "{{ incident_num }}"
-            data:
-              state: 6
-              comments: "Compliance has been updated, marking resolved"
+            other:
+              work_notes: "Compliance has been updated, marking resolved"
           register: snow_var
           check_mode: no
           become_user: awx 
           delegate_to: localhost
 
         - name: Mark incident as closed 
-          servicenow.servicenow.snow_record:
-            username: "{{ SN_USERNAME }}"
-            password: "{{ SN_PASSWORD }}"
-            instance: "{{ SN_INSTANCE }}"
-            state: present
-            table: incident
+          servicenow.itsm.incident:
+            instance:
+              username: "{{ SN_USERNAME }}"
+              password: "{{ SN_PASSWORD }}"
+              host: "{{ SN_INSTANCE }}.service-now.com"
+            state: closed
             number: "{{ incident_num }}"
-            data:
-              state: 7
-              comments: "Compliance has been updated, closing ticket"
+            close_code: "Solved (Permanently)"
+            close_notes: "Compliance has been updated, closing ticket"
           register: snow_var
           check_mode: no
           become_user: awx 
