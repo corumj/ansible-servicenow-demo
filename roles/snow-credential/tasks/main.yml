@@ -1,6 +1,6 @@
 ---
 - name: Setup SNOW Custom Credential Type
-  awx.awx.tower_credential_type:
+  awx.awx.credential_type:
     name: ServiceNow
     description: Credentials type for ServiceNow
     kind: cloud
@@ -13,7 +13,7 @@
     tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
 
 - name: Add SNOW custom credential
-  awx.awx.tower_credential:
+  awx.awx.credential:
     name: SNOW 
     credential_type: ServiceNow 
     organization: Default 
