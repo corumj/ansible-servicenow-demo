@@ -22,7 +22,7 @@
     return_content: yes 
     status_code: 201 
   register: auth_profile 
-  when: not ck_auth_profile.json.result
+  #when: not ck_auth_profile.json.result
 
 # - name: Check if REST message already exists
 #   uri: 
@@ -49,7 +49,7 @@
     return_content: yes 
     status_code: 201 
   register: rest_message 
-  when: not ck_rest_message.json.result
+  #when: not ck_rest_message.json.result
 
 # - name: Check if HTTP Method already exists 
 #   uri: 
@@ -85,7 +85,7 @@
     return_content: yes 
     status_code: 201 
   register: http_method 
-  when: not ck_http_method.json.result
+  #when: not ck_http_method.json.result
 
 # - name: Check if content-type header is added to HTTP Method 
 #   uri: 
@@ -109,5 +109,5 @@
       value: "application/json"
     return_content: yes 
     status_code: 201 
-    when: not ck_http_method_header.json.result
+    #when: not ck_http_method_header.json.result
 
