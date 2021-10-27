@@ -1,0 +1,42 @@
+---
+- name: Check if Business Rule already exists
+  uri:
+    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_script?name=Ansible%20Tower%20Demo"
+    user: "{{ snow_username }}"
+    password: "{{ snow_password }}"
+    return_content: yes 
+  register: response 
+
+- name: Create Business Rule 
+  uri:
+    url: https://{{ snow_instance }}.service-now.com/api/now/table/sys_script
+    user: "{{ snow_username }}"
+    password: "{{ snow_password }}"
+    method: POST
+    body_format: json 
+    body:
+      name: Ansible Tower Demo
+      action_insert: true 
+      advanced: true 
+      when: after 
+      collection: incident 
+      script: |
+        (function executeRule(current, previous /*null when async*/ ) {
+          try {
+              var r = new sn_ws.RESTMessageV2('Ansible Tower Demo', 'Launch compliance fix');
+              r.setStringParameterNoEscape('INC', current.number);
+
+              var response = r.execute();
+              var responseBody = response.getBody();
+              var httpStatus = response.getStatusCode();
+              current.comments = "Contacting Ansible Tower to fix bespoke incident";
+              current.state = '2';
+              current.update();
+          } catch (ex) {
+              var message = ex.message;
+          }
+        })(current, previous);
+      filter_condition: "short_descriptionLIKECOMPLIANCE^EQ"
+    status_code: 201 
+    return_content: yes
+  when: not response.json.result
