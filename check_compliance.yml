@@ -83,7 +83,7 @@
             instance:
               username: "{{ SN_USERNAME }}"
               password: "{{ SN_PASSWORD }}"
-              host: "{{ SN_INSTANCE }}.service-now.com"
+              host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: new
             caller: System Administrator
             short_description: "COMPLIANCE"
@@ -119,7 +119,7 @@
             instance:
               username: "{{ SN_USERNAME }}"
               password: "{{ SN_PASSWORD }}"
-              host: "{{ SN_INSTANCE }}.service-now.com"
+              host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: resolved
             number: "{{ incident_num }}"
             other:
@@ -134,7 +134,7 @@
             instance:
               username: "{{ SN_USERNAME }}"
               password: "{{ SN_PASSWORD }}"
-              host: "{{ SN_INSTANCE }}.service-now.com"
+              host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: closed
             number: "{{ incident_num }}"
             close_code: "Solved (Permanently)"
