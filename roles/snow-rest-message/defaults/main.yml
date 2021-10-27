@@ -3,8 +3,7 @@
 auth_profile_name: Ansible Auth Profile
 
 # ServiceNow REST Message
-rest_message_name: Ansible Provisioning
-rest_message_method_name: Ansible Provisioning [ post ]
+rest_message_name: Ansible API
+rest_message_method_name: Ansible API Method
 rest_endpoint_url: "{{ lookup('env', 'TOWER_HOST') }}/api/v2/job_templates/2.%20Provision/launch/"
-http_method_fn_name: Ansible Provision Server
-
+http_method_fn_name: Ansible API
