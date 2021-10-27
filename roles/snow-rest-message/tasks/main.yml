@@ -1,113 +1,82 @@
----
-- name: Check if basic auth profile already exists 
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic?name={{ auth_profile_name | urlencode }}" 
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_auth_profile   
+- name: Create ServiceNow REST Message for Tower Demo
+  block:
+    - name: Check if Basic Auth Profile for Tower exists already 
+      uri: 
+        url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name=Ansible%20Tower%20Demo"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+        return_content: yes 
+      register: response 
 
-- name: Create the Basic Auth Profile 
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    method: POST
-    body_format: json 
-    body:
-      name: "{{ auth_profile_name }}"
-      password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-      username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-    return_content: yes 
-    status_code: 201 
-  register: auth_profile 
-  when: not ck_auth_profile.json.result
+    - name: Create the parts of a REST Message
+      block:
+        - name: Create the Basic Auth Profile 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              name: mytower_creds
+              password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+              username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+            return_content: yes 
+            status_code: 201 
+          register: profile 
 
-- name: Check if REST message already exists
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name={{ rest_message_name | urlencode }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_rest_message 
+        - name: Create REST Message
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              authentication_type: basic 
+              basic_auth_profile: mytower_creds
+              use_mutual_auth: false 
+              name: Ansible Tower Demo
+              rest_endpoint: "{{ lookup('env', 'TOWER_HOST') }}/api/v2/job_templates/SNOW-Demo-Compliance-Fix/launch/"
+            return_content: yes 
+            status_code: 201 
+          register: message 
 
-- name: Create REST Message
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message" 
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    method: POST
-    body_format: json 
-    body:
-      authentication_type: basic 
-      basic_auth_profile: "{{ auth_profile_name }}"
-      use_mutual_auth: false 
-      name: "{{ rest_message_name }}"
-      rest_endpoint: "{{ rest_endpoint_url }}"
-    return_content: yes 
-    status_code: 201 
-  register: rest_message 
-  when: not ck_rest_message.json.result
+        - name: Create HTTP Method 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message: Ansible Tower Demo
+              authentication_type: inherit_from_parent 
+              content: |
+                {
+                  "extra_vars": {
+                    "incident_num": "${INC}"
+                  }
+                }
+              http_method: post 
+              function_name: Launch Compliance Fix 
+              qualified_name: "Ansible Tower Demo [ Launch Compliance Fix ]"
+            return_content: yes 
+            status_code: 201 
+          register: method 
 
-- name: Check if HTTP Method already exists 
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn?qualified_name={{ rest_message_method_name | urlencode }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_http_method 
+        - name: Add content-type header to the http method
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message_function: "{{ method.json.result.sys_id }}"  
+              name: Content-Type 
+              value: "application/json"
+            return_content: yes 
+            status_code: 201 
 
-- name: Create HTTP Method 
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    method: POST
-    body_format: json 
-    body:
-      rest_message: "{{ rest_message_name }}"
-      authentication_type: inherit_from_parent 
-      content: |
-        {
-          "extra_vars": {
-          "survey_group_name": "${ansible_group_name}",
-          "survey_short_desc": "${ansible_short_desc}",
-          "survey_server_env": "${ansible_server_env}",
-          "survey_server_os": "${ansible_server_os}"
-          }
-        }
-      http_method: post 
-      function_name: "{{ http_method_fn_name }}" 
-      qualified_name: "{{ rest_message_name }} [ {{ http_method_fn_name }} ]"
-    return_content: yes 
-    status_code: 201 
-  register: http_method 
-  when: not ck_http_method.json.result
-
-- name: Check if content-type header is added to HTTP Method 
-  uri: 
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers?rest_message_function={{ http_method.json.result.sys_id | default(ck_http_method.json.result) }}"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    return_content: yes 
-    status_code: 200 
-  register: ck_http_method_header
-
-- name: Add content-type header to the http method
-  uri:
-    url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
-    user: "{{ snow_username }}"
-    password: "{{ snow_password }}"
-    method: POST
-    body_format: json 
-    body:
-      rest_message_function: "{{ http_method.json.result.sys_id | default(ck_http_method.json.result) }}"  
-      name: Content-Type 
-      value: "application/json"
-    return_content: yes 
-    status_code: 201 
-  when: not ck_http_method_header.json.result
-
+      when: not response.json.result
