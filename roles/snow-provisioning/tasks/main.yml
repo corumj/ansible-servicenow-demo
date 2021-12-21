@@ -1,0 +1,147 @@
+- name: Setup ServiceNow for provisioning demo
+  block:
+    - name: Check if Basic Auth Profile for Tower exists already 
+      uri: 
+        url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message?name=Ansible%20Provisioning"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+        return_content: yes 
+      register: response 
+
+    - name: Create the parts of a REST Message
+      block:
+        - name: Create the Basic Auth Profile 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_auth_profile_basic" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              name: ansible_provisioning
+              password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+              username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+            return_content: yes 
+            status_code: 201 
+          register: profile 
+
+        - name: Create REST Message
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              authentication_type: basic 
+              basic_auth_profile: ansible_provisioning
+              use_mutual_auth: false 
+              name: Ansible Provisioning Demo
+              rest_endpoint: "{{ lookup('env', 'TOWER_HOST') }}/api/v2/job_templates/2.%20Provision/launch/"
+            return_content: yes 
+            status_code: 201 
+          register: message 
+
+        - name: Create HTTP Method 
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn" 
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message: Ansible Provisioning Demo
+              authentication_type: inherit_from_parent 
+              content: |
+                {
+                  "extra_vars": {
+                  "survey_group_name": "${ansible_group_name}",
+                  "survey_short_desc": "${ansible_short_desc}",
+                  "survey_server_env": "${ansible_server_env}",
+                  "survey_server_os": "${ansible_server_os}"
+                  }
+                }
+              http_method: post 
+              function_name: Ansible Provision Server 
+              qualified_name: "Ansible Provisioning Demo [ Ansible Provision Server ]"
+            return_content: yes 
+            status_code: 201 
+          register: method 
+
+        - name: Add content-type header to the http method
+          uri:
+            url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_rest_message_fn_headers"
+            user: "{{ snow_username }}"
+            password: "{{ snow_password }}"
+            method: POST
+            body_format: json 
+            body:
+              rest_message_function: "{{ method.json.result.sys_id }}"  
+              name: Content-Type 
+              value: "application/json"
+            return_content: yes 
+            status_code: 201 
+
+      when: not response.json.result
+    
+- name: Create ServiceNow Business Rule for provisioning demo
+  block:
+    - name: Check if Business Rule already exists
+      uri:
+        url: "https://{{ snow_instance }}.service-now.com/api/now/table/sys_script?name=Ansible%20Provisioning"
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+        return_content: yes 
+      register: response 
+
+    - name: Create Business Rule 
+      uri:
+        url: https://{{ snow_instance }}.service-now.com/api/now/table/sys_script
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+        method: POST
+        body_format: json 
+        body:
+          name: Ansible Provisioning
+          action_insert: true 
+          advanced: true 
+          when: after 
+          collection: sc_req_item 
+          script: |
+            (function executeRule(current, previous /*null when async*/ ) {
+              try {
+                  var r = new sn_ws.RESTMessageV2('Ansible Provisioning Demo', 'Ansible Provision Server');
+
+                  r.setStringParameterNoEscape('ansible_server_env', current.variables.ansible_server_env);
+                  r.setStringParameterNoEscape('ansible_short_desc', current.variables.ansible_short_desc);
+                  r.setStringParameterNoEscape('ansible_group_name', current.variables.ansible_group_name);
+                  r.setStringParameterNoEscape('ansible_server_os', current.variables.ansible_server_os);
+
+                  var response = r.execute();
+                  var responseBody = response.getBody();
+                  var httpStatus = response.getStatusCode();
+                  // current.comments = "Contacting Ansible Tower to begin provisioning";
+                  // current.state = '2';
+                  // current.update();
+              } catch (ex) {
+                  var message = ex.message;
+              }
+            })(current, previous);
+          filter_condition: "short_descriptionLIKEAnsible^EQ"
+        status_code: 201 
+        return_content: yes
+      when: not response.json.result
+
+- name: Create ServiceNow catalog item for Ansible Provisioning 
+  block:
+    - name: Create workflow first before creating catalog entry 
+      uri: 
+    - name: create item on sc_cat_item table
+      uri:
+        url: https://{{ snow_instance }}.service-now.com/api/now/table/sc_cat_item
+        user: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+        method: POST
+        body_format: json 
+
+        break this up and parameterize - role to create a business rule, role to create a workflow, role to create a catalog item.  
