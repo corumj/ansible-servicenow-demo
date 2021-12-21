@@ -1,6 +1,6 @@
 ---
 - name: Setup SNOW Custom Credential Type
-  awx.awx.credential_type:
+  ansible.controller.credential_type:
     name: ServiceNow
     description: Credentials type for ServiceNow
     kind: cloud
@@ -8,12 +8,12 @@
     injectors: "{{ lookup('file', 'files/injectors_snow.yml') | from_yaml }}"
     state: present
     validate_certs: true
-    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
 
 - name: Add SNOW custom credential
-  awx.awx.credential:
+  ansible.controller.credential:
     name: SNOW 
     credential_type: ServiceNow 
     organization: Default 
@@ -21,7 +21,8 @@
       username: "{{ snow_username }}"
       password: "{{ snow_password }}"
       instance: "{{ snow_instance }}"
-    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    tower_verify_ssl: true
+    validate_certs: true
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    
