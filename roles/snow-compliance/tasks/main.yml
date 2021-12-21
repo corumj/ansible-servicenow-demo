@@ -1,5 +1,5 @@
 - name: Spin up a Windows server to compliance check 
-  awx.awx.job_launch:
+  ansible.controller.job_launch:
     job_template: 1. Provision
     extra_vars:
       survey_group_name: "compliance"
@@ -7,14 +7,14 @@
       survey_server_env: "dev" 
       survey_server_os: "windows"
       survey_business_domain_name: "Red Hat"
-    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    tower_verify_ssl: true
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    controller_verify_ssl: true
   register: job 
 
 - name: Add ServiceNow - Compliance Check template 
-  awx.awx.job_template:
+  ansible.controller.job_template:
     name: "SNOW-Demo-Compliance-Check"
     job_type: check
     inventory: "AWS"
@@ -159,7 +159,7 @@
 #       when: not response.json.result
 
 - name: add job template - compliance fix
-  awx.awx.job_template:
+  ansible.controller.job_template:
     name: "SNOW-Demo-Compliance-Fix"
     job_type: run
     inventory: AWS
@@ -185,6 +185,6 @@
     name: snow-business-rule
     
 - name: Wait for compliance target server to provision
-  tower_job_wait:
+  ansible.controller.job_wait:
     job_id: "{{ job.id }}"
     timeout: 1600

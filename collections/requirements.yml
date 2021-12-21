@@ -1,9 +1,6 @@
 ---
 collections:
-  - community.aws
   - ansible.windows
-  - community.windows
   - amazon.aws
-  - awx.awx
   - servicenow.itsm
-  # - ansible.tower
+  - ansible.controller
