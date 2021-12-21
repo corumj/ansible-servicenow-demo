@@ -10,7 +10,7 @@
     controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
     controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
     controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    controller_verify_ssl: true
+    validate_certs: true
   register: job 
 
 - name: Add ServiceNow - Compliance Check template 
@@ -171,10 +171,10 @@
       - "SNOW"
     ask_variables_on_launch: yes
     state: "present"
-    tower_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-    tower_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-    tower_host: "{{ lookup('env', 'TOWER_HOST') }}"
-    tower_verify_ssl: true
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
+    validate_certs: true
 
 - name: Setup SNOW Rest Messages 
   include_role:
