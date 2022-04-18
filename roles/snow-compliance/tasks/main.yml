@@ -18,7 +18,7 @@
     name: "SNOW-Demo-Compliance-Check"
     job_type: check
     inventory: "AWS"
-    project: "ServiceNow"
+    project: "ServiceNow Tasks"
     playbook: check_compliance.yml
     credentials: 
       - "AWS Windows"
@@ -163,7 +163,7 @@
     name: "SNOW-Demo-Compliance-Fix"
     job_type: run
     inventory: AWS
-    project: "ServiceNow"
+    project: "ServiceNow Tasks"
     playbook: check_compliance.yml
     job_tags: fix
     credentials: 
