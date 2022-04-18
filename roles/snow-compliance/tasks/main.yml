@@ -13,22 +13,22 @@
     validate_certs: true
   register: job 
 
-# - name: Add ServiceNow - Compliance Check template 
-#   ansible.controller.job_template:
-#     name: "SNOW-Demo-Compliance-Check"
-#     job_type: check
-#     inventory: "AWS"
-#     project: "ServiceNow"
-#     playbook: check_compliance.yml
-#     credentials: 
-#       - "AWS Windows"
-#       - "SNOW"
-#     limit: "tag_compliance"
-#     job_tags: check
-#     state: present
-#     controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-#     controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-#     controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
+- name: Add ServiceNow - Compliance Check template 
+  ansible.controller.job_template:
+    name: "SNOW-Demo-Compliance-Check"
+    job_type: check
+    inventory: "AWS"
+    project: "ServiceNow"
+    playbook: check_compliance.yml
+    credentials: 
+      - "AWS Windows"
+      - "SNOW"
+    limit: "tag_compliance"
+    job_tags: check
+    state: present
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
 #     validate_certs: true
 
 # - name: Create ServiceNow REST Message for Closed Loop Demo
@@ -158,22 +158,22 @@
 #         return_content: yes
 #       when: not response.json.result
 
-# - name: add job template - compliance fix
-#   ansible.controller.job_template:
-#     name: "SNOW-Demo-Compliance-Fix"
-#     job_type: run
-#     inventory: AWS
-#     project: "ServiceNow"
-#     playbook: check_compliance.yml
-#     job_tags: fix
-#     credentials: 
-#       - "AWS Windows"
-#       - "SNOW"
-#     ask_variables_on_launch: yes
-#     state: "present"
-#     controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
-#     controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
-#     controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
+- name: add job template - compliance fix
+  ansible.controller.job_template:
+    name: "SNOW-Demo-Compliance-Fix"
+    job_type: run
+    inventory: AWS
+    project: "ServiceNow"
+    playbook: check_compliance.yml
+    job_tags: fix
+    credentials: 
+      - "AWS Windows"
+      - "SNOW"
+    ask_variables_on_launch: yes
+    state: "present"
+    controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
+    controller_password: "{{ lookup('env', 'TOWER_PASSWORD') }}"
+    controller_host: "{{ lookup('env', 'TOWER_HOST') }}"
 #     validate_certs: true
 
 - name: Setup SNOW Rest Messages 
