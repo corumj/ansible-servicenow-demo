@@ -23,7 +23,7 @@
     credentials: 
       - "AWS Windows"
       - "SNOW"
-    limit: "tag_compliance"
+    limit: "demo_compliance"
     job_tags: check
     state: present
     controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
@@ -166,6 +166,7 @@
     project: "ServiceNow Tasks"
     playbook: check_compliance.yml
     job_tags: fix
+    limit: demo_compliance
     credentials: 
       - "AWS Windows"
       - "SNOW"
