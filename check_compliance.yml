@@ -1,6 +1,6 @@
 ---
 - name: Scan for compliance 
-  hosts: tag_compliance
+  hosts: demo_compliance
   gather_facts: false
   tasks:
     - name: Simplified Compliance Check 
