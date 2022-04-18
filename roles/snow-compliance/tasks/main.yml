@@ -4,7 +4,7 @@
     extra_vars:
       survey_group_name: "compliance"
       survey_server_name: "borg"
-      survey_server_env: "dev" 
+      survey_server_env: "test" 
       survey_server_os: "windows"
       survey_business_domain_name: "Red Hat"
     controller_username: "{{ lookup('env', 'TOWER_USERNAME') }}"
