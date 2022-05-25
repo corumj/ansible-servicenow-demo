@@ -1,4 +1,4 @@
 ---
 collections:
   - awx.awx
-  - servicenow.servicenow
+  - servicenow.itsm

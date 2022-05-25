@@ -20,18 +20,17 @@
     - name: OPEN AN INCIDENT (SERVICENOW) IF NO BANNER IS CONFIGURED
       block:
         - name: CREATE AN INCIDENT
-          snow_record:
-            username: "{{ SN_USERNAME }}"
-            password: "{{ SN_PASSWORD }}"
-            instance: "{{ SN_INSTANCE }}"
+          servicenow.itsm.incident:
+            instance: 
+              username: "{{ SN_USERNAME }}"
+              password: "{{ SN_PASSWORD }}"
+              host: "https://{{ SN_INSTANCE }}.service-now.com"
             state: present
-            table: incident
-            data:
-              short_description: "BANNER MISSING ON {{inventory_hostname}}"
-              severity: 3
-              priority: 2
-              caller_id: "System Administrator"
-              comments: "The login banner is missing on {{inventory_hostname}}"
+            short_description: "BANNER MISSING ON {{inventory_hostname}}"
+            impact: low
+            urgency: low
+            caller: "admin"
+            description: "The login banner is missing on {{inventory_hostname}}"
           register: snow_var
           delegate_to: localhost
 
