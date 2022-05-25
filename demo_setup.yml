@@ -31,6 +31,7 @@
         scm_type: git 
         scm_url: https://github.com/corumj/ansible-servicenow-demo.git
         scm_update_on_launch: yes 
+        scm_branch: main
 
     - name: Add custom credential for ServiceNow 
       awx.awx.tower_credential_type:
